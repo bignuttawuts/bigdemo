@@ -7,13 +7,22 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:netlify": "netlify dev"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.3.1",
+    "@netlify/functions": "^2.6.0",
+    "@reduxjs/toolkit": "^2.2.1",
     "antd": "^5.15.1",
+    "axios": "^1.6.7",
+    "lodash": "^4.17.21",
+    "mongodb": "^6.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3"
+    "react-redux": "^9.1.0",
+    "react-router-dom": "^6.22.3",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.56",
