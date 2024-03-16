@@ -43,11 +43,11 @@ const createUser = async function (event: HandlerEvent) {
 
   const db = await getDb()
   const requestBody = JSON.parse(event.body || '{}')
-  const { userId } = requestBody
-  if (!userId) throw new BadRequestError()
+  // const { userId } = requestBody
+  // if (!userId) throw new BadRequestError()
 
   const { firstname, lastname, email } = requestBody
-  const user = { userId, uid: 'test', firstname, lastname, email }
+  const user = { userId: 'test', uid: 'test', firstname, lastname, email }
   await db.collection('user').insertOne(user)
 
   return {
