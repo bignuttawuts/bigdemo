@@ -39,22 +39,15 @@ const getUser = async function (event: HandlerEvent) {
 }
 
 const createUser = async function (event: HandlerEvent) {
-  const uid = validateAuth(event)
+  // const uid = validateAuth(event)
 
   const db = await getDb()
   const requestBody = JSON.parse(event.body || '{}')
   const { userId } = requestBody
   if (!userId) throw new BadRequestError()
 
-  const counter = await db.collection('counter').findOneAndUpdate(
-    { _id: `user_of_${userId}` },
-    { $inc: { seq: 1 } },
-    { upsert: true }
-  )
-  const nextSeq = counter?.seq ? counter.seq + 1 : 1
-
-  const { title, items, bgColor, tags } = requestBody
-  const user = { userId, uid, title, items, bgColor, tags, seq: nextSeq, synced: true }
+  const { firstname, lastname, email } = requestBody
+  const user = { userId, uid: 'test', firstname, lastname, email }
   await db.collection('user').insertOne(user)
 
   return {
