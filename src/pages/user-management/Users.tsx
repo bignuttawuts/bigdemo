@@ -17,9 +17,10 @@ export default function Users() {
   const [userData, setUserData] = useState<User>(initialUser)
 
   useEffect(() => {
-    fetchUserList().then((response: TransferResponse<User[]>) => {
-      setUsers(response.data)
-    })
+    fetchUserList()
+      .then((response: TransferResponse<User[]>) => {
+        setUsers(response.data)
+      })
   }, []);
 
   const handleAddUser = () => {
@@ -113,12 +114,12 @@ export default function Users() {
                         }
                       ]
                     }} trigger={['click']}>
-                      <a onClick={(e) => e.preventDefault()}>
+                      <Button type='link'>
                         <Space>
                           Actions
                           <DownOutlined />
                         </Space>
-                      </a>
+                      </Button>
                     </Dropdown>
                   }
                 ]

@@ -1,5 +1,5 @@
 import { Handler, HandlerEvent } from '@netlify/functions'
-import { ApplicationError, BadRequestError, getDb, validateAuth } from '../libs/utils'
+import { ApplicationError, BadRequestError, getDb } from '../libs/utils'
 import { v4 as uuid } from 'uuid'
 
 const handler: Handler = async (event: HandlerEvent) => {
@@ -26,13 +26,11 @@ const handler: Handler = async (event: HandlerEvent) => {
 }
 
 const getUser = async function (event: HandlerEvent) {
-  const uid = validateAuth(event)
-
   if (!event.queryStringParameters) throw new BadRequestError()
   const { userId } = event.queryStringParameters
 
   const db = await getDb()
-  const result = await db.collection('user').findOne({ userId, uid })
+  const result = await db.collection('user').findOne({ userId })
   return {
     statusCode: 200,
     body: JSON.stringify(result)

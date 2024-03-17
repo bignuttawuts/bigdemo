@@ -1,7 +1,7 @@
 import { Form, Input, Modal, Select } from 'antd';
 import { createUser, updateUser } from '../../../services/userService';
 import { User } from '../../../types';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 type Props = {
   readonly open: boolean
@@ -12,23 +12,25 @@ type Props = {
 
 export default function UserModal({ open, onCancel, onOk, data }: Props) {
   const [form] = Form.useForm()
+  const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
     form.resetFields()
     form.setFieldsValue(data)
   }, [data, form])
 
-  const handleOk = () => {
-    form.validateFields()
-      .then((values: User) => {
-        if (values.userId) {
-          updateUser(values)
-        } else {
-          createUser(values)
-        }
+  const handleOk = async () => {
+    setLoading(true)
 
-        if (onOk) onOk(values)
-      })
+    const values = await form.validateFields()
+    if (values.userId) {
+      await updateUser(values)
+    } else {
+      await createUser(values)
+    }
+    setLoading(false)
+
+    if (onOk) onOk(values)
   }
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -41,6 +43,8 @@ export default function UserModal({ open, onCancel, onOk, data }: Props) {
     open={open}
     onCancel={handleCancel}
     onOk={handleOk}
+    okText='Submit'
+    confirmLoading={loading}
   >
     <Form
       form={form}
