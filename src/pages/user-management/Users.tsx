@@ -1,15 +1,29 @@
-import { DownloadOutlined, PlusOutlined } from '@ant-design/icons';
-import { Breadcrumb, Button, Card, Flex, Input, Layout, Table } from 'antd';
+import { DownOutlined, DownloadOutlined, ExclamationCircleFilled, PlusOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Card, Dropdown, Flex, Input, Layout, Modal, Space, Table } from 'antd';
 import UserModal from './components/UserModal';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { deleteUser, fetchUserList } from '../../services/userService';
+import { TransferResponse, User } from '../../types';
+import moment from 'moment';
 
 const { Search } = Input;
 const { Content } = Layout;
 
+const initialUser = {} as User
+
 export default function Users() {
   const [modalOpen, setModalOpen] = useState<boolean>(false)
+  const [users, setUsers] = useState<User[]>([])
+  const [userData, setUserData] = useState<User>(initialUser)
+
+  useEffect(() => {
+    fetchUserList().then((response: TransferResponse<User[]>) => {
+      setUsers(response.data)
+    })
+  }, []);
 
   const handleAddUser = () => {
+    setUserData(initialUser)
     setModalOpen(true)
   }
 
@@ -27,6 +41,7 @@ export default function Users() {
         open={modalOpen}
         onCancel={handleCancelUserModal}
         onOk={handleOkUserModal}
+        data={userData}
       />
       <Breadcrumb style={{ margin: '16px 0' }}>
         <Breadcrumb.Item>User Management</Breadcrumb.Item>
@@ -49,22 +64,62 @@ export default function Users() {
               </Flex>
             </Flex>
             <Table
+              dataSource={users}
               columns={
                 [
                   {
-                    title: 'User'
+                    title: 'User',
+                    render: (_, record) => `${record.firstname} ${record.lastname}`
                   },
                   {
-                    title: 'Role'
+                    title: 'Role',
+                    dataIndex: 'role'
                   },
                   {
-                    title: 'Last Login'
+                    title: 'Last Login',
+                    dataIndex: 'lastLogin',
+                    render: (value) => value ? moment(value).format('DD MMM YYYY HH:mm') : ''
                   },
                   {
-                    title: 'Joined Date'
+                    title: 'Joined Date',
+                    dataIndex: 'joinedDate',
+                    render: (value) => value ? moment(value).format('DD MMM YYYY HH:mm') : ''
                   },
                   {
-                    title: 'Actions'
+                    title: 'Actions',
+                    dataIndex: 'userId',
+                    render: (value, record) => <Dropdown menu={{
+                      items: [
+                        {
+                          key: '0',
+                          label: 'Edit',
+                          onClick: () => {
+                            setUserData(record)
+                            setModalOpen(true)
+                          }
+                        }, {
+                          key: '1',
+                          label: 'Delete',
+                          onClick: () => {
+                            Modal.confirm({
+                              title: 'Confirmation',
+                              icon: <ExclamationCircleFilled />,
+                              content: 'Are you sure you want to delete item',
+                              onOk() {
+                                deleteUser(value)
+                              },
+                            });
+                          }
+                        }
+                      ]
+                    }} trigger={['click']}>
+                      <a onClick={(e) => e.preventDefault()}>
+                        <Space>
+                          Actions
+                          <DownOutlined />
+                        </Space>
+                      </a>
+                    </Dropdown>
                   }
                 ]
               }

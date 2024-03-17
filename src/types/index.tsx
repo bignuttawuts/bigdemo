@@ -3,7 +3,11 @@ export interface TransferResponse<T> {
 }
 
 export interface User {
+  userId: string
   firstname: string
   lastname: string
   email: string
+  role: string
+  lastLogin: number
+  joinedDate: number
 }

@@ -1,5 +1,6 @@
 import { Handler, HandlerEvent } from '@netlify/functions'
 import { ApplicationError, BadRequestError, getDb, validateAuth } from '../libs/utils'
+import { v4 as uuid } from 'uuid'
 
 const handler: Handler = async (event: HandlerEvent) => {
   try {
@@ -39,15 +40,11 @@ const getUser = async function (event: HandlerEvent) {
 }
 
 const createUser = async function (event: HandlerEvent) {
-  // const uid = validateAuth(event)
-
   const db = await getDb()
   const requestBody = JSON.parse(event.body || '{}')
-  // const { userId } = requestBody
-  // if (!userId) throw new BadRequestError()
 
-  const { firstname, lastname, email } = requestBody
-  const user = { userId: 'test', uid: 'test', firstname, lastname, email }
+  const { firstname, lastname, email, role } = requestBody
+  const user = { userId: uuid(), firstname, lastname, email, role, joinedDate: Date.now() }
   await db.collection('user').insertOne(user)
 
   return {
@@ -57,8 +54,6 @@ const createUser = async function (event: HandlerEvent) {
 }
 
 const updateUser = async function (event: HandlerEvent) {
-  const uid = validateAuth(event)
-
   if (!event.queryStringParameters) throw new BadRequestError()
   const { userId } = event.queryStringParameters
   if (!userId) throw new BadRequestError()
@@ -66,9 +61,9 @@ const updateUser = async function (event: HandlerEvent) {
   const db = await getDb()
   const requestBody = JSON.parse(event.body || '{}')
 
-  const { title, items, bgColor, tags, seq, pinned } = requestBody
-  const user = { userId, uid, title, items, bgColor, tags, seq, pinned, synced: true }
-  await db.collection('user').findOneAndUpdate({ userId, uid }, { '$set': user }, { upsert: true })
+  const { firstname, lastname, email, role } = requestBody
+  const user = { userId: uuid(), firstname, lastname, email, role, updatedDate: Date.now() }
+  await db.collection('user').findOneAndUpdate({ userId }, { '$set': user })
   return {
     statusCode: 200,
     body: JSON.stringify({ data: user }),
@@ -76,14 +71,12 @@ const updateUser = async function (event: HandlerEvent) {
 }
 
 const deleteUser = async function (event: HandlerEvent) {
-  const uid = validateAuth(event)
-
   if (!event.queryStringParameters) throw new BadRequestError()
   const { userId } = event.queryStringParameters
   if (!userId) throw new BadRequestError()
 
   const db = await getDb()
-  await db.collection('user').findOneAndDelete({ userId, uid })
+  await db.collection('user').findOneAndDelete({ userId })
   return {
     statusCode: 200
   }
